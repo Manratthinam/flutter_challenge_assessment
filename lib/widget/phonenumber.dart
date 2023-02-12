@@ -31,6 +31,7 @@ class _PhoneNumberState extends State<PhoneNumber> {
 
   Future<void> _validatePhoneNumber() async {
     final number = _phoneFieldController.text;
+
     if (number.isEmpty || number.length < 10) {
       setState(() {
         _isValid = true;
@@ -46,8 +47,8 @@ class _PhoneNumberState extends State<PhoneNumber> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              OtpValidate(number, lblForNxt, widget.lstOfLabels),
+          builder: (context) => OtpValidate(
+              number, lblForNxt, widget.lstOfLabels, widget.converttxtTo),
         ),
       );
     }
@@ -116,12 +117,13 @@ class _PhoneNumberState extends State<PhoneNumber> {
                     width: 300,
                     child: TextField(
                       controller: _phoneFieldController,
-                      keyboardType: TextInputType.phone,
+                      keyboardType: TextInputType.number,
                       maxLength: 10,
                       style: TextStyle(
                         letterSpacing: 2,
                       ),
                       decoration: InputDecoration(
+                        counterText: '',
                         prefixIcon: Padding(
                           padding: EdgeInsets.all(10.0),
                           child: Flag.fromCode(
@@ -166,7 +168,7 @@ class _PhoneNumberState extends State<PhoneNumber> {
                         ),
                         style: ElevatedButton.styleFrom(
                             backgroundColor:
-                                Color.fromARGB(255, 114, 19, 198))),
+                                Color.fromARGB(255, 102, 84, 143))),
                   ),
                 ],
               ),

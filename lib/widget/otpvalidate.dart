@@ -1,14 +1,15 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import './radio.dart';
+import '../model/translate.dart';
 
 class OtpValidate extends StatefulWidget {
   final phoneNumber;
   final lblText;
   final dicLabel;
-  OtpValidate(this.phoneNumber, this.lblText, this.dicLabel);
+  final convertTo;
+
+  OtpValidate(this.phoneNumber, this.lblText, this.dicLabel, this.convertTo);
 
   @override
   State<OtpValidate> createState() => _OtpValidateState();
@@ -19,6 +20,7 @@ class _OtpValidateState extends State<OtpValidate> {
   var _verificationId = '';
   int? _resendtoken;
   final _auth = FirebaseAuth.instance;
+  bool _enableSubmit = false;
 
   Future<void> phoneAuthentication(String phoneNo) async {
     await _auth.verifyPhoneNumber(
@@ -36,6 +38,9 @@ class _OtpValidateState extends State<OtpValidate> {
       codeSent: (verificationId, resendToken) {
         this._verificationId = verificationId;
         this._resendtoken = resendToken;
+        setState(() {
+          _enableSubmit = true;
+        });
       },
       codeAutoRetrievalTimeout: (verificationId) {
         this._verificationId = verificationId;
@@ -113,6 +118,68 @@ class _OtpValidateState extends State<OtpValidate> {
   final _otpController4 = TextEditingController();
   final _otpController5 = TextEditingController();
   final _otpController6 = TextEditingController();
+
+  Future<void> _validateOtpTxtBox() async {
+    String? otp;
+    final controller1 = _otpController1.text;
+    final controller2 = _otpController2.text;
+    final controller3 = _otpController3.text;
+    final controller4 = _otpController4.text;
+    final controller5 = _otpController5.text;
+    final controller6 = _otpController6.text;
+    bool returnifempty = false;
+    setState(() {
+      if (controller1.isEmpty) {
+        returnifempty = true;
+      } else if (controller2.isEmpty) {
+        returnifempty = true;
+      } else if (controller3.isEmpty) {
+        returnifempty = true;
+      } else if (controller4.isEmpty) {
+        returnifempty = true;
+      } else if (controller5.isEmpty) {
+        returnifempty = true;
+      } else if (controller6.isEmpty) {
+        returnifempty = true;
+      } else {
+        otp = controller1 +
+            controller2 +
+            controller3 +
+            controller4 +
+            controller5 +
+            controller6;
+      }
+    });
+
+    if (returnifempty) {
+      return;
+    }
+    bool _isvalid = await verifyOTP(otp!);
+    if (_isvalid) {
+      String value = widget.convertTo.isEmpty
+          ? ''
+          : await _getLblText(widget.convertTo, widget.dicLabel);
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => Radiopage(value, widget.dicLabel)));
+    }
+  }
+
+  Future<String> _getLblText(String? To, Map<String, String> dicLbl) async {
+    List<String> translatedElement = [];
+    for (var items in dicLbl.keys) {
+      if (items.contains('page4')) {
+        translatedElement.add(dicLbl[items]!);
+      }
+    }
+    String element = translatedElement.join('|');
+    Translate objToTranslate = new Translate();
+    String translatedTxt = await objToTranslate.translate(element, To!);
+
+    return translatedTxt as String;
+  }
+
   @override
   Widget build(BuildContext context) {
     lblForText(widget.lblText, widget.dicLabel);
@@ -208,28 +275,16 @@ class _OtpValidateState extends State<OtpValidate> {
                     width: 200,
                     height: 40,
                     child: ElevatedButton(
-                      onPressed: () async {
-                        String? otp;
-                        setState(() {
-                          otp = _otpController1.text +
-                              _otpController2.text +
-                              _otpController3.text +
-                              _otpController4.text +
-                              _otpController5.text;
-                        });
-                        bool _isvalid = await verifyOTP(otp!);
-                        if (_isvalid) {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Radiopage()));
-                        }
-                      },
+                      onPressed: _enableSubmit
+                          ? () async {
+                              await _validateOtpTxtBox();
+                            }
+                          : null,
                       child: Text(
                         lbltxt5!,
                       ),
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromARGB(255, 114, 19, 198)),
+                          backgroundColor: Color.fromARGB(255, 102, 84, 143)),
                     ),
                   ),
                   SizedBox(

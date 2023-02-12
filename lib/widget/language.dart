@@ -16,11 +16,15 @@ class _LanguageState extends State<Language> {
   Map<String, String> outputDic = new Map();
   _LanguageState(this.lstOfLabels);
   String _elenentForNextPage = '';
+  bool _enableSubmit = true;
 
-  List<String> list = <String>['en', 'ta'];
+  List<String> list = <String>['English-en', 'Tamil-ta', 'Hindi-hi'];
   String dropDownValue = '';
 
   Future<void> changeDropDown(String? selectedValue) async {
+    setState(() {
+      _enableSubmit = false;
+    });
     List<String> translatedElement = [];
     for (var items in lstOfLabels.keys) {
       if (items.contains('page1')) {
@@ -44,6 +48,7 @@ class _LanguageState extends State<Language> {
       }
 
       dropDownValue = selectedValue as String;
+      _enableSubmit = true;
     });
   }
 
@@ -80,6 +85,13 @@ class _LanguageState extends State<Language> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        Icon(
+          Icons.area_chart_rounded,
+          size: 60,
+        ),
+        SizedBox(
+          height: 7,
+        ),
         Text(
           textAlign: TextAlign.center,
           txtLabel1,
@@ -112,11 +124,11 @@ class _LanguageState extends State<Language> {
           child: DropdownButtonFormField(
             items: list.map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem(
-                child: Text(value),
-                value: value,
+                child: Text(value.split('-')[0]),
+                value: value.split('-')[1],
               );
             }).toList(),
-            value: list.first,
+            value: list.first.split('-')[1],
             onChanged: (value) async => await changeDropDown(value),
             decoration: InputDecoration(
               enabledBorder: OutlineInputBorder(
@@ -138,17 +150,19 @@ class _LanguageState extends State<Language> {
           height: 40,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromARGB(255, 114, 19, 198)),
-            onPressed: () async {
-              if (dropDownValue.isNotEmpty) {
-                await nextPageElement(dropDownValue);
-              }
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => PhoneNumber(
-                          lstOfLabels, _elenentForNextPage, dropDownValue)));
-            },
+                backgroundColor: Color.fromARGB(255, 102, 84, 143)),
+            onPressed: _enableSubmit
+                ? () async {
+                    if (dropDownValue.isNotEmpty) {
+                      await nextPageElement(dropDownValue);
+                    }
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => PhoneNumber(lstOfLabels,
+                                _elenentForNextPage, dropDownValue)));
+                  }
+                : null,
             child: Text(buttonLabel),
           ),
         ),

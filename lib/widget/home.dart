@@ -19,6 +19,7 @@ class Home extends StatelessWidget {
     'page4lbl2sub': 'some example for the shipper given here',
     'page4lbl3': 'Transporter',
     'page4lbl3sub': 'some example for the transporter given here',
+    'page4lbl4': 'Continue',
   };
 
   @override
